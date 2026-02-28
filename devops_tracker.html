@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Sprint Tracker — 8 Weeks to Job Ready</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #1f2530;
+    --accent: #00d4aa;
+    --accent2: #0088ff;
+    --accent3: #ff6b35;
+    --warn: #ffd166;
+    --done-bg: #0d1f1a;
+    --done-text: #2a6b5a;
+    --text: #e2e8f0;
+    --muted: #4a5568;
+    --muted2: #6b7280;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 0 0 80px 0;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0a0c10 0%, #0d1520 50%, #0a1015 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 36px 40px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,212,170,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header-sub {
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 1px;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .stat {
+    flex: 1;
+    padding: 16px 24px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-num.blue { color: var(--accent2); }
+  .stat-num.orange { color: var(--accent3); }
+  .stat-num.yellow { color: var(--warn); }
+  .stat-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted2);
+    text-transform: uppercase;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    padding: 20px 40px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted2);
+    text-transform: uppercase;
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+    transition: width 0.6s ease;
+    position: relative;
+  }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0;
+    width: 8px; height: 100%;
+    background: white;
+    opacity: 0.6;
+    border-radius: 3px;
+  }
+
+  /* MAIN LAYOUT */
+  .main { padding: 32px 40px; max-width: 1400px; }
+
+  /* WEEK BLOCKS */
+  .week-block {
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .week-block.completed { border-color: var(--accent); border-opacity: 0.4; }
+
+  .week-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    background: var(--surface2);
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+  .week-header:hover { background: #1d2232; }
+
+  .week-badge {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .badge-done { background: rgba(0,212,170,0.15); color: var(--accent); }
+  .badge-active { background: rgba(0,136,255,0.15); color: var(--accent2); }
+  .badge-upcoming { background: rgba(255,255,255,0.05); color: var(--muted2); }
+  .badge-exam { background: rgba(255,107,53,0.15); color: var(--accent3); }
+
+  .week-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    flex: 1;
+  }
+  .week-title.struck {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  .week-meta {
+    font-size: 10px;
+    color: var(--muted2);
+    letter-spacing: 1px;
+  }
+
+  .week-progress-mini {
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-left: auto;
+    margin-right: 12px;
+  }
+
+  .chevron {
+    color: var(--muted);
+    font-size: 12px;
+    transition: transform 0.3s;
+  }
+  .week-block.open .chevron { transform: rotate(180deg); }
+
+  /* TASKS */
+  .tasks-wrap {
+    display: none;
+    padding: 0;
+  }
+  .week-block.open .tasks-wrap { display: block; }
+
+  .task-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(31, 37, 48, 0.6);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .task-row:last-child { border-bottom: none; }
+  .task-row:hover { background: rgba(255,255,255,0.02); }
+  .task-row.done { background: rgba(0,212,170,0.03); }
+
+  .task-check {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--muted);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .task-row.done .task-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-size: 10px;
+  }
+
+  .task-content { flex: 1; }
+
+  .task-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+    transition: all 0.3s;
+    line-height: 1.5;
+  }
+  .task-row.done .task-title {
+    text-decoration: line-through;
+    color: var(--done-text);
+  }
+
+  .task-detail {
+    font-size: 10px;
+    color: var(--muted2);
+    line-height: 1.7;
+  }
+  .task-row.done .task-detail { color: var(--done-text); opacity: 0.5; }
+
+  .task-tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+  .tag-kk { background: rgba(0,212,170,0.1); color: var(--accent); }
+  .tag-udemy { background: rgba(0,136,255,0.1); color: var(--accent2); }
+  .tag-hands { background: rgba(255,107,53,0.1); color: var(--accent3); }
+  .tag-cert { background: rgba(255,209,102,0.1); color: var(--warn); }
+  .tag-github { background: rgba(139,92,246,0.1); color: #a78bfa; }
+
+  .task-day {
+    font-size: 9px;
+    color: var(--muted);
+    white-space: nowrap;
+    padding-top: 3px;
+    letter-spacing: 1px;
+  }
+
+  /* SECTION DIVIDER */
+  .section-div {
+    padding: 8px 20px 4px;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.01);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* CERT TRACKER */
+  .cert-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .cert-panel-header {
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--warn);
+  }
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+  }
+  .cert-item {
+    padding: 14px 20px;
+    border-right: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .cert-item:last-child { border-right: none; }
+  .cert-item:hover { background: rgba(255,255,255,0.02); }
+  .cert-item.done { background: rgba(0,212,170,0.04); }
+  .cert-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+    transition: all 0.3s;
+  }
+  .cert-item.done .cert-name {
+    text-decoration: line-through;
+    color: var(--done-text);
+  }
+  .cert-when {
+    font-size: 9px;
+    color: var(--muted2);
+    letter-spacing: 1px;
+  }
+  .cert-status {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 8px;
+    letter-spacing: 1px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+  .cs-exam { background: rgba(255,107,53,0.15); color: var(--accent3); }
+  .cs-study { background: rgba(0,136,255,0.1); color: var(--accent2); }
+  .cs-later { background: rgba(255,255,255,0.05); color: var(--muted2); }
+  .cs-done { background: rgba(0,212,170,0.15); color: var(--accent); }
+
+  /* NOTES */
+  .notes-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .notes-panel-header {
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted2);
+  }
+  .notes-body {
+    padding: 16px 20px;
+  }
+  .notes-body textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 12px;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    line-height: 1.8;
+  }
+  .notes-body textarea:focus { border-color: var(--accent); }
+  .notes-body textarea::placeholder { color: var(--muted); }
+
+  /* RESET BUTTON */
+  .reset-btn {
+    background: rgba(255,107,53,0.1);
+    border: 1px solid rgba(255,107,53,0.3);
+    color: var(--accent3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+    margin-top: -4px;
+    transition: all 0.2s;
+  }
+  .reset-btn:hover { background: rgba(255,107,53,0.2); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 768px) {
+    .main { padding: 20px 16px; }
+    .header { padding: 24px 16px; }
+    .stats-bar { flex-wrap: wrap; }
+    .stat { min-width: 50%; }
+    .progress-wrap { padding: 16px; }
+    .cert-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-label">// devops career sprint</div>
+  <h1>8-Week Tracker — <span>Job Ready</span></h1>
+  <div class="header-sub">Canada · Sysadmin Background · AWS SAA + PCEP Certified · Starting Now</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat">
+    <span class="stat-num" id="stat-done">0</span>
+    <div class="stat-label">Tasks Done</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num blue" id="stat-total">0</span>
+    <div class="stat-label">Total Tasks</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num orange" id="stat-pct">0%</span>
+    <div class="stat-label">Complete</div>
+  </div>
+  <div class="stat">
+    <span class="stat-num yellow" id="stat-certs">0/7</span>
+    <div class="stat-label">Certs Earned</div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-header">
+    <span>Overall Progress</span>
+    <span id="prog-label">0%</span>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- CERT TRACKER -->
+  <div class="cert-panel">
+    <div class="cert-panel-header">
+      🏆 Certification Tracker
+      <button class="reset-btn" onclick="resetAll()">Reset All</button>
+    </div>
+    <div class="cert-grid">
+      <div class="cert-item" id="cert-0" onclick="toggleCert(0)">
+        <div class="cert-name">AWS Solutions Architect – Associate</div>
+        <div class="cert-when">Target: End of Week 1</div>
+        <div class="cert-status cs-exam">Exam Monday 🎯</div>
+      </div>
+      <div class="cert-item" id="cert-1" onclick="toggleCert(1)">
+        <div class="cert-name">Terraform Associate (003)</div>
+        <div class="cert-when">Target: End of Week 4</div>
+        <div class="cert-status cs-study">Book This Week</div>
+      </div>
+      <div class="cert-item" id="cert-2" onclick="toggleCert(2)">
+        <div class="cert-name">CKA – Certified Kubernetes Admin</div>
+        <div class="cert-when">Target: Month 3</div>
+        <div class="cert-status cs-later">Study Now, Cert Later</div>
+      </div>
+      <div class="cert-item" id="cert-3" onclick="toggleCert(3)">
+        <div class="cert-name">AWS SysOps Administrator</div>
+        <div class="cert-when">Target: Month 4</div>
+        <div class="cert-status cs-later">Post-Job</div>
+      </div>
+      <div class="cert-item" id="cert-4" onclick="toggleCert(4)">
+        <div class="cert-name">CompTIA Security+</div>
+        <div class="cert-when">Target: Month 5-6</div>
+        <div class="cert-status cs-later">Post-Job</div>
+      </div>
+      <div class="cert-item" id="cert-5" onclick="toggleCert(5)">
+        <div class="cert-name">CCNA</div>
+        <div class="cert-when">Target: Whenever</div>
+        <div class="cert-status cs-later">Post-Job</div>
+      </div>
+      <div class="cert-item" id="cert-6" onclick="toggleCert(6)">
+        <div class="cert-name">AWS DevOps Engineer – Professional</div>
+        <div class="cert-when">Target: Month 6+</div>
+        <div class="cert-status cs-later">After SysOps</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 1 -->
+  <div class="week-block open" id="week-0">
+    <div class="week-header" onclick="toggleWeek(0)">
+      <div class="week-badge badge-active">Week 1</div>
+      <div class="week-title" id="wt-0">AWS SAA Exam + Bash DevOps + Python Boto3</div>
+      <div class="week-meta">Days 1–7 · Mar 3–9</div>
+      <div class="week-progress-mini" id="wp-0">0/7</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks-wrap">
+      <div class="section-div">// SAA — exam day</div>
+      <div class="task-row" id="t-0-0" onclick="toggleTask('0-0')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Sit AWS SAA Exam 🎯</div>
+          <div class="task-detail">You're ready. Exam Monday. Rest this weekend, light review only.</div>
+          <div class="task-tags"><span class="tag tag-cert">Exam</span></div>
+        </div>
+        <div class="task-day">Day 1</div>
+      </div>
+      <div class="section-div">// bash — devops specific</div>
+      <div class="task-row" id="t-0-1" onclick="toggleTask('0-1')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">KodeKloud — Shell Scripts for Beginners (Labs Only)</div>
+          <div class="task-detail">Skip what you know. Focus: loops, functions, error handling, exit codes, awk/sed.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud</span><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 2</div>
+      </div>
+      <div class="task-row" id="t-0-2" onclick="toggleTask('0-2')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Write 5 Real Bash Scripts → Push to GitHub</div>
+          <div class="task-detail">Automated backup · Service health checker · Disk usage alerter · Log cleaner · Deployment helper</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 3</div>
+      </div>
+      <div class="section-div">// python — boto3 devops scripting</div>
+      <div class="task-row" id="t-0-3" onclick="toggleTask('0-3')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Boto3 — EC2 Automation Scripts</div>
+          <div class="task-detail">List & filter EC2 by tag · Start/stop by schedule · Describe security groups</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 4</div>
+      </div>
+      <div class="task-row" id="t-0-4" onclick="toggleTask('0-4')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Boto3 — S3 + SNS Scripts</div>
+          <div class="task-detail">Upload/download from S3 · Send SNS alerts · Create/delete security group rules</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 5</div>
+      </div>
+      <div class="section-div">// docker — building not just running</div>
+      <div class="task-row" id="t-0-5" onclick="toggleTask('0-5')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Bret Fisher — Docker Mastery on Udemy (Skip Intro)</div>
+          <div class="task-detail">Start from Dockerfile section. Multi-stage builds, networking, volumes, env vars.</div>
+          <div class="task-tags"><span class="tag tag-udemy">Udemy</span></div>
+        </div>
+        <div class="task-day">Day 6</div>
+      </div>
+      <div class="task-row" id="t-0-6" onclick="toggleTask('0-6')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Containerize a Python Flask App End-to-End</div>
+          <div class="task-detail">Write Dockerfile · Docker Compose (app + PostgreSQL) · Push to DockerHub + ECR</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 7</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 2 -->
+  <div class="week-block" id="week-1">
+    <div class="week-header" onclick="toggleWeek(1)">
+      <div class="week-badge badge-upcoming">Week 2</div>
+      <div class="week-title" id="wt-1">Kubernetes — Core Objects + Workloads</div>
+      <div class="week-meta">Days 8–14 · Mar 10–16</div>
+      <div class="week-progress-mini" id="wp-1">0/6</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks-wrap">
+      <div class="section-div">// course setup</div>
+      <div class="task-row" id="t-1-0" onclick="toggleTask('1-0')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Start Mumshad Mannambeth CKA Course — Udemy</div>
+          <div class="task-detail">The gold standard. Run at 1.25x. Do KodeKloud CKA labs simultaneously.</div>
+          <div class="task-tags"><span class="tag tag-udemy">Udemy</span><span class="tag tag-kk">KodeKloud</span></div>
+        </div>
+        <div class="task-day">Day 8</div>
+      </div>
+      <div class="task-row" id="t-1-1" onclick="toggleTask('1-1')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Pods, ReplicaSets, Deployments</div>
+          <div class="task-detail">Create, scale, update, rollback. Understand each abstraction and why it exists.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud Labs</span><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 9</div>
+      </div>
+      <div class="task-row" id="t-1-2" onclick="toggleTask('1-2')">
+        <div class="task-content">
+          <div class="task-title">Services — ClusterIP, NodePort, LoadBalancer</div>
+          <div class="task-detail">Know when to use which. Expose apps internally and externally.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud Labs</span><span class="task-check">✓</div>
+          </div>
+        </div>
+        <div class="task-day">Day 10</div>
+      </div>
+      <div class="task-row" id="t-1-3" onclick="toggleTask('1-3')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">ConfigMaps, Secrets, Namespaces</div>
+          <div class="task-detail">Create and consume in running pods. Env vars vs volume mounts. Resource requests & limits.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud Labs</span><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 11</div>
+      </div>
+      <div class="task-row" id="t-1-4" onclick="toggleTask('1-4')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Persistent Volumes + Storage Classes</div>
+          <div class="task-detail">PV, PVC, StorageClass. Deploy a stateful app (PostgreSQL) with persistent storage.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud Labs</span><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 12-13</div>
+      </div>
+      <div class="task-row" id="t-1-5" onclick="toggleTask('1-5')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">KillerCoda — K8s Scenario Practice</div>
+          <div class="task-detail">Free Kubernetes playground. Different environment = better retention. Do 3-4 scenarios.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 14</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 3 -->
+  <div class="week-block" id="week-2">
+    <div class="week-header" onclick="toggleWeek(2)">
+      <div class="week-badge badge-upcoming">Week 3</div>
+      <div class="week-title" id="wt-2">Kubernetes — RBAC, Ingress, Helm + Break Things</div>
+      <div class="week-meta">Days 15–21 · Mar 17–23</div>
+      <div class="week-progress-mini" id="wp-2">0/6</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks-wrap">
+      <div class="task-row" id="t-2-0" onclick="toggleTask('2-0')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">RBAC — ServiceAccounts, Roles, ClusterRoles, RoleBindings</div>
+          <div class="task-detail">Create a ServiceAccount with least-privilege access. Test permissions with kubectl auth can-i.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud Labs</span><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 15-16</div>
+      </div>
+      <div class="task-row" id="t-2-1" onclick="toggleTask('2-1')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Ingress Controllers + Network Policies</div>
+          <div class="task-detail">Deploy NGINX Ingress. Route traffic by hostname/path. Write network policies to restrict pod comms.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud Labs</span><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 17</div>
+      </div>
+      <div class="task-row" id="t-2-2" onclick="toggleTask('2-2')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Helm — Install Charts, Customize values.yaml</div>
+          <div class="task-detail">Install a real app via Helm (Prometheus, Grafana). Understand templates and chart structure.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 18-19</div>
+      </div>
+      <div class="task-row" id="t-2-3" onclick="toggleTask('2-3')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">🔥 Break Things Deliberately — Session 1</div>
+          <div class="task-detail">Kill pods · Corrupt a deployment YAML · Break DNS · Mess up RBAC. Detect → Fix → Document each incident.</div>
+          <div class="task-tags"><span class="tag tag-hands">Incident Practice</span><span class="tag tag-github">Document</span></div>
+        </div>
+        <div class="task-day">Day 20</div>
+      </div>
+      <div class="task-row" id="t-2-4" onclick="toggleTask('2-4')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">K8s Troubleshooting — CrashLoopBackOff, ImagePullBackOff, Pending</div>
+          <div class="task-detail">Know how to debug every common pod failure state. Use describe, logs, exec, events.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud Labs</span><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 21</div>
+      </div>
+      <div class="task-row" id="t-2-5" onclick="toggleTask('2-5')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Write Up 3 Incident Reports → Push to GitHub</div>
+          <div class="task-detail">Format: What broke · How detected · Steps to fix · Prevention. These are your interview stories.</div>
+          <div class="task-tags"><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 21</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 4 -->
+  <div class="week-block" id="week-3">
+    <div class="week-header" onclick="toggleWeek(3)">
+      <div class="week-badge badge-upcoming">Week 4</div>
+      <div class="week-title" id="wt-3">Terraform + Terraform Associate Exam 🏆</div>
+      <div class="week-meta">Days 22–28 · Mar 24–30</div>
+      <div class="week-progress-mini" id="wp-3">0/6</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks-wrap">
+      <div class="task-row" id="t-3-0" onclick="toggleTask('3-0')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Zeal Vora Terraform Course — Udemy + KodeKloud Labs</div>
+          <div class="task-detail">HCL syntax, providers, resources, variables, outputs, data sources. Your AWS SAA = fast track here.</div>
+          <div class="task-tags"><span class="tag tag-udemy">Udemy</span><span class="tag tag-kk">KodeKloud</span></div>
+        </div>
+        <div class="task-day">Day 22-23</div>
+      </div>
+      <div class="task-row" id="t-3-1" onclick="toggleTask('3-1')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Modules + Remote State in S3 + Workspaces</div>
+          <div class="task-detail">Write a reusable VPC module. Remote state with DynamoDB locking. dev/staging/prod workspaces.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 24-25</div>
+      </div>
+      <div class="task-row" id="t-3-2" onclick="toggleTask('3-2')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Full AWS Environment in Terraform</div>
+          <div class="task-detail">VPC + Subnets + EC2 + RDS + ALB + IAM roles — all in code. Push to GitHub.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 25-26</div>
+      </div>
+      <div class="task-row" id="t-3-3" onclick="toggleTask('3-3')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Master: plan, apply, destroy, import, taint, state</div>
+          <div class="task-detail">Know every common Terraform command and when to use it. Practice drift detection.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 26</div>
+      </div>
+      <div class="task-row" id="t-3-4" onclick="toggleTask('3-4')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">TutorialsDojo Terraform Practice Tests</div>
+          <div class="task-detail">Score 85%+ before booking exam. Focus on weak areas only.</div>
+          <div class="task-tags"><span class="tag tag-cert">Exam Prep</span></div>
+        </div>
+        <div class="task-day">Day 27</div>
+      </div>
+      <div class="task-row" id="t-3-5" onclick="toggleTask('3-5')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">🏆 Sit Terraform Associate Exam (~$70 USD)</div>
+          <div class="task-detail">Book early this week. PSI online proctored. Your second cert badge.</div>
+          <div class="task-tags"><span class="tag tag-cert">Exam Day</span></div>
+        </div>
+        <div class="task-day">Day 28</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 5 -->
+  <div class="week-block" id="week-4">
+    <div class="week-header" onclick="toggleWeek(4)">
+      <div class="week-badge badge-upcoming">Week 5</div>
+      <div class="week-title" id="wt-4">CI/CD — GitHub Actions + Jenkins + Ansible</div>
+      <div class="week-meta">Days 29–35 · Mar 31–Apr 6</div>
+      <div class="week-progress-mini" id="wp-4">0/6</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks-wrap">
+      <div class="section-div">// github actions — most used in Canadian startups</div>
+      <div class="task-row" id="t-4-0" onclick="toggleTask('4-0')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">GitHub Actions — Workflows, Triggers, Jobs, Steps</div>
+          <div class="task-detail">Understand YAML structure. Write workflows for lint, test, build. Use secrets and env vars.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 29-30</div>
+      </div>
+      <div class="task-row" id="t-4-1" onclick="toggleTask('4-1')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Build the Full Pipeline: Code → Docker → ECR → Kubernetes</div>
+          <div class="task-detail">Git push → GH Actions → run tests → Docker build → push ECR → kubectl apply. This is your portfolio centerpiece.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span><span class="tag tag-github">Portfolio</span></div>
+        </div>
+        <div class="task-day">Day 31-32</div>
+      </div>
+      <div class="task-row" id="t-4-2" onclick="toggleTask('4-2')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Jenkins — Pipelines, Jenkinsfile, Declarative Syntax</div>
+          <div class="task-detail">Still required for enterprise roles. KodeKloud Jenkins course. Recreate your GH Actions pipeline in Jenkins.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud</span><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 33</div>
+      </div>
+      <div class="section-div">// ansible — your sysadmin background makes this fast</div>
+      <div class="task-row" id="t-4-3" onclick="toggleTask('4-3')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Ansible — KodeKloud Course (3 Days)</div>
+          <div class="task-detail">Playbooks, roles, variables, handlers, inventory. This is sysadmin work automated — will feel natural.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud</span></div>
+        </div>
+        <div class="task-day">Day 33-34</div>
+      </div>
+      <div class="task-row" id="t-4-4" onclick="toggleTask('4-4')">
+        <div class="task-content">
+          <div class="task-title">Ansible Playbook — Configure Fresh EC2 Instance</div>
+          <div class="task-detail">Install packages · Configure services · Set up users · AWS dynamic inventory. Your old sysadmin work, now automated.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 35</div>
+      </div>
+      <div class="task-row" id="t-4-5" onclick="toggleTask('4-5')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">🚀 Start Applying for Jobs — Day 35</div>
+          <div class="task-detail">Canadian hiring takes 4-6 weeks. Apply NOW. Target: Junior DevOps, Platform Engineer, Cloud Ops Engineer.</div>
+          <div class="task-tags"><span class="tag tag-cert">Action Item</span></div>
+        </div>
+        <div class="task-day">Day 35</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 6 -->
+  <div class="week-block" id="week-5">
+    <div class="week-header" onclick="toggleWeek(5)">
+      <div class="week-badge badge-upcoming">Week 6</div>
+      <div class="week-title" id="wt-5">Observability — Prometheus, Grafana, CloudWatch</div>
+      <div class="week-meta">Days 36–42 · Apr 7–13</div>
+      <div class="week-progress-mini" id="wp-5">0/5</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks-wrap">
+      <div class="task-row" id="t-5-0" onclick="toggleTask('5-0')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">KodeKloud — Prometheus + Grafana Course</div>
+          <div class="task-detail">Understand metrics vs logs vs traces. PromQL basics. Alert rules. Exporter pattern.</div>
+          <div class="task-tags"><span class="tag tag-kk">KodeKloud</span></div>
+        </div>
+        <div class="task-day">Day 36-37</div>
+      </div>
+      <div class="task-row" id="t-5-1" onclick="toggleTask('5-1')">
+        <div class="task-content">
+          <div class="task-title">Deploy Prometheus + Grafana on Your K8s Cluster via Helm</div>
+          <div class="task-detail">Use kube-prometheus-stack chart. Configure scraping. Build dashboards for CPU, memory, pod health.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 38-39</div>
+      </div>
+      <div class="task-row" id="t-5-2" onclick="toggleTask('5-2')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Set Up Alerting Rules — Slack/Email Notifications</div>
+          <div class="task-detail">AlertManager config. Route alerts by severity. Test by triggering conditions deliberately.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 39-40</div>
+      </div>
+      <div class="task-row" id="t-5-3" onclick="toggleTask('5-3')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">CloudWatch — Dashboards, Alarms, Log Insights</div>
+          <div class="task-detail">AWS-side monitoring. EC2 metrics, custom metrics, log groups, metric filters, alarms to SNS.</div>
+          <div class="task-tags"><span class="tag tag-hands">Hands-on</span></div>
+        </div>
+        <div class="task-day">Day 41</div>
+      </div>
+      <div class="task-row" id="t-5-4" onclick="toggleTask('5-4')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Continue Job Applications — Target 5-10 Per Week</div>
+          <div class="task-detail">LinkedIn, Indeed Canada, WorkInTech.ca. Tailor resume: AWS SAA cert, Terraform cert, GitHub project link.</div>
+          <div class="task-tags"><span class="tag tag-cert">Action Item</span></div>
+        </div>
+        <div class="task-day">Day 42</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEK 7-8 -->
+  <div class="week-block" id="week-6">
+    <div class="week-header" onclick="toggleWeek(6)">
+      <div class="week-badge badge-upcoming">Week 7–8</div>
+      <div class="week-title" id="wt-6">Production Project + Failure Practice + Interviews</div>
+      <div class="week-meta">Days 43–56 · Apr 14–27</div>
+      <div class="week-progress-mini" id="wp-6">0/7</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks-wrap">
+      <div class="section-div">// the project that gets you hired</div>
+      <div class="task-row" id="t-6-0" onclick="toggleTask('6-0')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Terraform — Provision Full AWS Infrastructure</div>
+          <div class="task-detail">VPC + EKS or EC2 + ECR + IAM + ALB. This is the foundation layer of your production project.</div>
+          <div class="task-tags"><span class="tag tag-hands">Project</span><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 43-45</div>
+      </div>
+      <div class="task-row" id="t-6-1" onclick="toggleTask('6-1')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Deploy Dockerized App to Kubernetes via Helm</div>
+          <div class="task-detail">Use your Flask app from Week 1. Deploy with Helm chart. Configure HPA for autoscaling.</div>
+          <div class="task-tags"><span class="tag tag-hands">Project</span></div>
+        </div>
+        <div class="task-day">Day 46-47</div>
+      </div>
+      <div class="task-row" id="t-6-2" onclick="toggleTask('6-2')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Wire Up Full CI/CD Pipeline to Production Project</div>
+          <div class="task-detail">GitHub Actions: PR → test → build → ECR → Helm deploy to K8s. Add status badges to README.</div>
+          <div class="task-tags"><span class="tag tag-hands">Project</span><span class="tag tag-github">GitHub</span></div>
+        </div>
+        <div class="task-day">Day 48-49</div>
+      </div>
+      <div class="task-row" id="t-6-3" onclick="toggleTask('6-3')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Add Prometheus + Grafana + CloudWatch to Project</div>
+          <div class="task-detail">Full observability stack. Custom dashboards. Alerting rules. Screenshots go in README.</div>
+          <div class="task-tags"><span class="tag tag-hands">Project</span></div>
+        </div>
+        <div class="task-day">Day 50-51</div>
+      </div>
+      <div class="task-row" id="t-6-4" onclick="toggleTask('6-4')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">🔥 Failure & Recovery — Session 2 (Project-Level)</div>
+          <div class="task-detail">Node down · Pipeline fails · DB unreachable · Pod OOMKilled. What alerts fire? How do you recover? Document all.</div>
+          <div class="task-tags"><span class="tag tag-hands">Incident Practice</span><span class="tag tag-github">Document</span></div>
+        </div>
+        <div class="task-day">Day 52-53</div>
+      </div>
+      <div class="task-row" id="t-6-5" onclick="toggleTask('6-5')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Write the README — Architecture Diagram + Lessons Learned</div>
+          <div class="task-detail">Someone should understand what you built in 2 minutes. Include draw.io/Excalidraw architecture diagram.</div>
+          <div class="task-tags"><span class="tag tag-github">GitHub Portfolio</span></div>
+        </div>
+        <div class="task-day">Day 54</div>
+      </div>
+      <div class="task-row" id="t-6-6" onclick="toggleTask('6-6')">
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-title">Interview Prep — System Design Stories (Scaling, Outages, Trade-offs)</div>
+          <div class="task-detail">Prepare 5 STAR stories from your incidents. Practice explaining your project architecture out loud.</div>
+          <div class="task-tags"><span class="tag tag-cert">Interview Prep</span></div>
+        </div>
+        <div class="task-day">Day 55-56</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="notes-panel">
+    <div class="notes-panel-header">📝 Daily Notes / Blockers / Progress Log</div>
+    <div class="notes-body">
+      <textarea id="notes-ta" placeholder="Log your daily progress, blockers, wins here. Saves automatically." rows="5"></textarea>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // DATA
+  const weekCounts = [7, 6, 6, 6, 6, 5, 7];
+  const STORAGE_KEY = 'devops_tracker_v1';
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch(e) { return {}; }
+  }
+  function saveState(s) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch(e) {}
+  }
+
+  let state = loadState();
+
+  // INIT
+  function init() {
+    // Tasks
+    document.querySelectorAll('.task-row').forEach(row => {
+      const id = row.id.replace('t-', '');
+      if (state['t-' + id]) applyTask(row, true);
+    });
+    // Certs
+    for (let i = 0; i < 7; i++) {
+      if (state['cert-' + i]) applyCert(i, true);
+    }
+    // Notes
+    const ta = document.getElementById('notes-ta');
+    if (state.notes) ta.value = state.notes;
+    ta.addEventListener('input', () => {
+      state.notes = ta.value;
+      saveState(state);
+    });
+    updateAll();
+  }
+
+  function applyTask(row, done) {
+    if (done) {
+      row.classList.add('done');
+      row.querySelector('.task-check').textContent = '✓';
+    } else {
+      row.classList.remove('done');
+      row.querySelector('.task-check').textContent = '';
+    }
+  }
+
+  function applyCert(i, done) {
+    const el = document.getElementById('cert-' + i);
+    if (!el) return;
+    if (done) el.classList.add('done');
+    else el.classList.remove('done');
+  }
+
+  function toggleTask(id) {
+    const key = 't-' + id;
+    const row = document.getElementById('t-' + id);
+    if (!row) return;
+    state[key] = !state[key];
+    applyTask(row, state[key]);
+    saveState(state);
+    updateAll();
+  }
+
+  function toggleCert(i) {
+    const key = 'cert-' + i;
+    state[key] = !state[key];
+    applyCert(i, state[key]);
+    saveState(state);
+    updateAll();
+  }
+
+  function toggleWeek(i) {
+    const block = document.getElementById('week-' + i);
+    block.classList.toggle('open');
+  }
+
+  function updateAll() {
+    let totalDone = 0, totalTasks = 0;
+    weekCounts.forEach((count, wi) => {
+      let weekDone = 0;
+      for (let ti = 0; ti < count; ti++) {
+        totalTasks++;
+        if (state['t-' + wi + '-' + ti]) { weekDone++; totalDone++; }
+      }
+      const wpEl = document.getElementById('wp-' + wi);
+      if (wpEl) wpEl.textContent = weekDone + '/' + count;
+      const wtEl = document.getElementById('wt-' + wi);
+      const block = document.getElementById('week-' + wi);
+      if (weekDone === count && count > 0) {
+        block.classList.add('completed');
+        if (wtEl) wtEl.classList.add('struck');
+        block.querySelector('.week-badge').className = 'week-badge badge-done';
+      } else {
+        block.classList.remove('completed');
+        if (wtEl) wtEl.classList.remove('struck');
+      }
+    });
+
+    let certsDone = 0;
+    for (let i = 0; i < 7; i++) if (state['cert-' + i]) certsDone++;
+
+    const pct = totalTasks > 0 ? Math.round((totalDone / totalTasks) * 100) : 0;
+    document.getElementById('stat-done').textContent = totalDone;
+    document.getElementById('stat-total').textContent = totalTasks;
+    document.getElementById('stat-pct').textContent = pct + '%';
+    document.getElementById('stat-certs').textContent = certsDone + '/7';
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-label').textContent = pct + '%';
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all progress? This cannot be undone.')) return;
+    state = {};
+    saveState(state);
+    document.querySelectorAll('.task-row').forEach(row => applyTask(row, false));
+    for (let i = 0; i < 7; i++) applyCert(i, false);
+    document.getElementById('notes-ta').value = '';
+    updateAll();
+  }
+
+  // Fix malformed task row
+  document.querySelectorAll('.task-row').forEach(row => {
+    if (!row.querySelector('.task-check')) {
+      const check = document.createElement('div');
+      check.className = 'task-check';
+      row.insertBefore(check, row.firstChild);
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>
